@@ -4,7 +4,6 @@ import random
 import datetime
 
 def run_command(command):
-    """Run a shell command and return the output."""
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error running command: {command}")
@@ -13,9 +12,15 @@ def run_command(command):
     return result.stdout.strip()
 
 def modify_file(file_path):
-    """Modify the file by adding a comment line with a timestamp."""
     with open(file_path, 'a') as file:
         file.write(f"# Update made on {datetime.datetime.now()}\n")
+
+def run(file_path):
+    modify_file(file_path)
+    run_command(f'git add {file_path}')
+    commit_message = f"Automated commit {datetime.datetime.now()}"
+    run_command(f'git commit -m "{commit_message}"')
+    run_command('git push')
 
 def main():
     file_path = 'changes.txt'
@@ -24,11 +29,8 @@ def main():
         print(f"File {file_path} does not exist.")
         exit(1)
 
-    modify_file(file_path)
-    run_command(f'git add {file_path}')
-    commit_message = f"Automated commit {datetime.datetime.now()}"
-    run_command(f'git commit -m "{commit_message}"')
-    run_command('git push')
+    for _ in range(0, 10000):
+        run(file_path)
 
 if __name__ == '__main__':
     main()
